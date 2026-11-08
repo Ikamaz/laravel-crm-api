@@ -1,0 +1,195 @@
+# API contract (planned)
+
+> **Design document only:** these routes and response examples describe the intended API. They are not implemented yet. Update this document alongside the code when behavior changes.
+
+## Conventions
+
+- Base path: `/api/v1`
+- Transport: HTTPS in deployed environments; JSON request and response bodies.
+- Authentication: Laravel Sanctum personal access tokens sent as `Authorization: Bearer <token>`.
+- Dates: ISO 8601 timestamps in UTC.
+- Resource identifiers: numeric IDs initially; do not expose internal database fields that are not part of a resource.
+- Collections: paginated with Laravel's length-aware pagination metadata.
+- Unknown query parameters should be ignored or rejected consistently; filtering and sorting must use explicit allow-lists.
+
+Authenticated endpoints require a valid token unless marked public. Authentication endpoints should be rate-limited. A user's role must never be accepted from public registration or ordinary profile updates.
+
+## Roles and access rules
+
+The first version has two roles:
+
+| Action | Admin | Member |
+| --- | --- | --- |
+| List customers | All customers | Own customers |
+| View a customer | Any customer | Own customers |
+| Create a customer | Yes | Yes; becomes owner |
+| Update a customer | Any customer | Own customers |
+| Delete a customer | Any customer | Own customers |
+| Manage notes and tasks | Any customer's records | Own customers' records |
+| Manage user roles | Yes | No |
+
+Ownership is enforced on the server through policies, not by trusting an `owner_id` supplied by the client. A member cannot transfer ownership by changing request data. Admin-only operations must be checked independently of UI or route visibility.
+
+## Authentication
+
+| Method | Endpoint | Access | Purpose |
+| --- | --- | --- | --- |
+| POST | `/auth/register` | Public, rate-limited | Create a member account |
+| POST | `/auth/login` | Public, rate-limited | Issue an API token |
+| POST | `/auth/logout` | Authenticated | Revoke the current token |
+| GET | `/auth/me` | Authenticated | Return the current user |
+
+Registration accepts a name, email, and password. It always creates a member; clients cannot submit a role. The initial admin account will be provisioned through a controlled seed or administrative process, not public registration.
+
+Login accepts email and password. The token is returned only on successful authentication. Logout revokes only the current token.
+
+## Customers
+
+Customer fields:
+
+| Field | Type | Rules |
+| --- | --- | --- |
+| `first_name` | string | Required, 1–100 characters |
+| `last_name` | string | Required, 1–100 characters |
+| `email` | string or null | Valid email, max 254 characters |
+| `phone` | string or null | Max 30 characters |
+| `company` | string or null | Max 150 characters |
+| `position` | string or null | Max 120 characters |
+| `source` | string or null | Max 80 characters |
+| `status` | enum | `lead`, `contact`, `customer`, or `inactive` |
+
+| Method | Endpoint | Access | Purpose |
+| --- | --- | --- | --- |
+| GET | `/customers` | Authenticated | List accessible customers |
+| POST | `/customers` | Authenticated | Create a customer |
+| GET | `/customers/{customer}` | Owner or admin | View a customer |
+| PATCH | `/customers/{customer}` | Owner or admin | Update editable fields |
+| DELETE | `/customers/{customer}` | Owner or admin | Delete a customer |
+
+List query parameters planned for v1:
+
+- `search`: search first name, last name, email, and company.
+- `status`: one of the supported status values.
+- `per_page`: integer from 1 to 100; default 15.
+- `page`: positive page number.
+- `sort`: allow-listed values such as `created_at`, `first_name`, and `updated_at`.
+- `direction`: `asc` or `desc`.
+
+The API derives the owner from the authenticated user when a member creates a customer. Admins may assign an owner through a separately authorized operation; ordinary customer create/update payloads cannot set `owner_id`.
+
+## Customer notes
+
+Notes are append-oriented records attached to a customer. The first version supports creating, listing, and deleting notes; editing note text is intentionally excluded to preserve a simple activity history.
+
+| Method | Endpoint | Access | Purpose |
+| --- | --- | --- | --- |
+| GET | `/customers/{customer}/notes` | Customer owner or admin | List notes |
+| POST | `/customers/{customer}/notes` | Customer owner or admin | Add a note |
+| DELETE | `/customers/{customer}/notes/{note}` | Note author, customer owner, or admin | Delete a note |
+
+A note contains `id`, `customer_id`, `user_id`, `body`, `created_at`, and `updated_at`. The author is taken from the authenticated user.
+
+## Follow-up tasks
+
+A task belongs to a customer and has a creator. Assignment is optional in v1.
+
+| Method | Endpoint | Access | Purpose |
+| --- | --- | --- | --- |
+| GET | `/tasks` | Authenticated | List tasks visible to the user |
+| POST | `/customers/{customer}/tasks` | Customer owner or admin | Create a follow-up |
+| GET | `/tasks/{task}` | Assigned user, customer owner, or admin | View a task |
+| PATCH | `/tasks/{task}` | Assigned user, customer owner, or admin | Update a task |
+| DELETE | `/tasks/{task}` | Creator, customer owner, or admin | Delete a task |
+
+Task fields:
+
+- `title`: required string, 1–160 characters.
+- `description`: nullable string, max 2,000 characters.
+- `due_at`: nullable ISO 8601 timestamp.
+- `assignee_id`: nullable user ID; assignment must be authorized.
+- `completed_at`: nullable timestamp; completion is represented by setting or clearing this field.
+
+A member can only create tasks for customers they own. Task list visibility is scoped to tasks the member is assigned to or tasks attached to customers they own. Admins can view all tasks.
+
+## Response format
+
+A successful single-resource response uses a `data` object:
+
+```json
+{
+  "data": {
+    "id": 42,
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "status": "lead"
+  }
+}
+```
+
+A collection response uses a `data` array and pagination metadata:
+
+```json
+{
+  "data": [],
+  "meta": {
+    "current_page": 1,
+    "last_page": 1,
+    "per_page": 15,
+    "total": 0
+  },
+  "links": {
+    "first": "https://example.test/api/v1/customers?page=1",
+    "last": "https://example.test/api/v1/customers?page=1",
+    "prev": null,
+    "next": null
+  }
+}
+```
+
+Validation errors return HTTP 422 with a message and field-keyed errors:
+
+```json
+{
+  "message": "The given data was invalid.",
+  "errors": {
+    "email": ["The email field must be a valid email address."]
+  }
+}
+```
+
+Use standard HTTP status codes consistently:
+
+- `200`: successful read or update.
+- `201`: resource created.
+- `204`: successful delete or logout with no response body.
+- `401`: missing or invalid authentication.
+- `403`: authenticated but not allowed.
+- `404`: resource does not exist or is outside the caller's visible scope, according to the chosen disclosure policy.
+- `422`: validation failure.
+- `429`: rate limit exceeded.
+
+Do not leak whether an inaccessible customer's ID exists if the application adopts the 404 disclosure policy for ownership-protected resources.
+
+## Initial relational model
+
+- `users`: identity, password hash, role, timestamps.
+- `customers`: owner user, contact fields, status, timestamps.
+- `customer_notes`: customer, author user, body, timestamps.
+- `tasks`: customer, creator, optional assignee, title, description, due/completion timestamps.
+
+Use foreign keys and indexes for common access paths: customer owner and status; notes by customer and creation time; tasks by assignee, customer, and due date. Delete behavior for related records must be explicit in migrations and covered by tests.
+
+## Implementation sequence
+
+1. Scaffold Laravel and configure the test database and CI.
+2. Add users, roles, Sanctum authentication, and authentication tests.
+3. Add customers, validation, ownership policies, and CRUD feature tests.
+4. Add notes and task workflows with authorization tests.
+5. Add queued reminders and notifications after task behavior is stable.
+6. Publish request/response examples from verified routes and keep this contract synchronized.
+
+## Open implementation decisions
+
+- Choose whether inaccessible resources return 403 or 404 consistently; this document currently prefers 404 for ownership-scoped lookups.
+- Confirm the exact Laravel 12 and PHP versions in CI and the local setup guide when the scaffold is created.
+- Decide whether customer deletion is hard-delete or soft-delete before writing the first customer migration.
