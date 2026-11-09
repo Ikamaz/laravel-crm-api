@@ -1,5 +1,7 @@
 # API contract (planned)
 
+> Runtime baseline: Laravel 13 and PHP 8.3+. The scaffold currently exposes only the health endpoint; the CRM endpoints below remain planned until implemented and tested.
+
 > **Design document only:** these routes and response examples describe the intended API. They are not implemented yet. Update this document alongside the code when behavior changes.
 
 ## Conventions
@@ -13,6 +15,14 @@
 - Unknown query parameters should be ignored or rejected consistently; filtering and sorting must use explicit allow-lists.
 
 Authenticated endpoints require a valid token unless marked public. Authentication endpoints should be rate-limited. A user's role must never be accepted from public registration or ordinary profile updates.
+
+## Health check
+
+| Method | Endpoint | Access | Purpose |
+| --- | --- | --- | --- |
+| GET | `/health` | Public | Confirm that the API application is responding |
+
+With the configured `/api/v1` prefix, the endpoint is available at `GET /api/v1/health`. It returns a `data` object containing `status: ok` and the configured service name. It is an application-level liveness check, not a database or queue readiness check.
 
 ## Roles and access rules
 
@@ -191,5 +201,5 @@ Use foreign keys and indexes for common access paths: customer owner and status;
 ## Open implementation decisions
 
 - Choose whether inaccessible resources return 403 or 404 consistently; this document currently prefers 404 for ownership-scoped lookups.
-- Confirm the exact Laravel 12 and PHP versions in CI and the local setup guide when the scaffold is created.
+- The scaffold targets Laravel 13 and PHP 8.3 or newer; keep CI and the local setup guide aligned with the supported runtime.
 - Decide whether customer deletion is hard-delete or soft-delete before writing the first customer migration.

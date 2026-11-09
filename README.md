@@ -1,58 +1,126 @@
 # Laravel CRM API
 
-A portfolio project for a multi-user customer relationship management API built with Laravel 12 and PHP 8.2+.
+A versioned REST API for a multi-user customer relationship management system, built with **Laravel 13** and **PHP 8.3+**.
 
-> **Status:** Design and initial setup in progress. Features will be marked complete only after implementation and tests.
+> **Project status:** The Laravel application scaffold, versioned API routing, health endpoint, and initial CI workflow are in place. Authentication and CRM workflows are still planned; they are not presented as implemented.
 
-## Planned capabilities
+## Current capabilities
 
-- Token-based authentication and account management
-- Role-aware access control and customer ownership
-- Customer records, contact details, notes, and follow-up tasks
-- Request validation and consistent JSON error responses
-- Background jobs and notifications for follow-ups
-- Feature tests for authentication, authorization, and CRUD workflows
-- Docker-friendly local development and CI checks
+- Laravel 13 application bootstrap and environment configuration
+- Versioned API routing under `/api/v1`
+- JSON health endpoint: `GET /api/v1/health`
+- Framework health endpoint: `GET /up`
+- MySQL configuration for local development
+- SQLite in-memory configuration for automated tests
+- PHPUnit feature tests for the API and framework health endpoints
+- GitHub Actions workflow for PHP 8.3, 8.4, and 8.5
+- API contract documenting planned authentication, roles, customers, notes, and tasks
 
 ## Tech stack
 
-- PHP 8.2+
-- Laravel 12
-- MySQL 8+
-- Pest for automated tests
-- Laravel Sanctum for API tokens (planned)
+| Area | Technology |
+| --- | --- |
+| Backend | PHP 8.3+, Laravel 13 |
+| Database | MySQL 8+ (development), SQLite (tests) |
+| API | REST, JSON, versioned routes |
+| Testing | PHPUnit 12 |
+| Code style | Laravel Pint |
+| CI | GitHub Actions |
+| Authentication | Laravel Sanctum (planned) |
 
-## Project documentation
+## Requirements
 
-- [API contract and access-control rules](docs/api-contract.md) — planned endpoints, roles, validation rules, response shapes, and implementation sequence.
-
-The API contract is a design reference at this stage. The application scaffold and endpoints have not been implemented yet.
+- PHP 8.3 or newer with the extensions required by Laravel
+- Composer 2
+- MySQL 8+ for local development
+- SQLite PDO extension for the automated test suite
 
 ## Local setup
 
-The application scaffold and exact setup instructions will be added in the first implementation milestone.
+1. Clone the repository and install dependencies:
+
+   ```bash
+   git clone https://github.com/Ikamaz/laravel-crm-api.git
+   cd laravel-crm-api
+   composer install
+   ```
+
+2. Create the local environment file and application key:
+
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+3. Create a MySQL database named `laravel_crm_api`, then set `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` in `.env`.
+
+4. Run migrations and the test suite:
+
+   ```bash
+   php artisan migrate
+   php artisan test
+   vendor/bin/pint --test
+   ```
+
+5. Start the local server:
+
+   ```bash
+   php artisan serve
+   ```
+
+The API will be available at `http://127.0.0.1:8000/api/v1`.
 
 ## API
 
-Versioned endpoints will use the `/api/v1` prefix. Request examples in the [API contract](docs/api-contract.md) are illustrative until the corresponding endpoints are implemented and tested.
+### Health check
 
-## Project principles
+```http
+GET /api/v1/health
+Accept: application/json
+```
 
-- Keep authorization checks on the server.
-- Validate all incoming data.
-- Prefer small, focused controllers and reusable domain logic.
-- Cover important behavior with automated tests.
-- Do not claim functionality is complete until it has been verified.
+Example response:
+
+```json
+{
+  "data": {
+    "status": "ok",
+    "service": "Laravel CRM API"
+  }
+}
+```
+
+Try it locally:
+
+```bash
+curl -H "Accept: application/json" http://127.0.0.1:8000/api/v1/health
+```
+
+The endpoint confirms that the Laravel application and API routing are responding. It does not yet perform database or queue dependency checks.
+
+## Project documentation
+
+- [API contract and access-control rules](docs/api-contract.md) — design reference for planned endpoints, roles, validation, and response formats.
 
 ## Roadmap
 
-1. [ ] Laravel application scaffold and CI
-2. [ ] Authentication and user roles
-3. [ ] Customer CRUD with ownership policies
-4. [ ] Notes and follow-up tasks
-5. [ ] Queued reminders and notifications
-6. [ ] Verified API examples and expanded test coverage
+- [x] Laravel 13 scaffold, versioned API routing, and health endpoint
+- [x] Initial PHPUnit feature tests and GitHub Actions workflow
+- [ ] Sanctum authentication, registration, login, logout, and current-user endpoint
+- [ ] User roles and authorization policies
+- [ ] Customer CRUD, filtering, pagination, and ownership rules
+- [ ] Customer notes and follow-up tasks
+- [ ] Queued reminders and notifications
+- [ ] Docker development environment and expanded API documentation
+
+## Engineering principles
+
+- Enforce authorization on the server; never trust client-supplied ownership or role fields.
+- Validate all incoming data and return predictable JSON errors.
+- Keep controllers focused and move reusable business rules into appropriate classes.
+- Cover important behavior with feature tests.
+- Mark functionality complete only after implementation and verification.
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).
