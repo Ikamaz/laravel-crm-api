@@ -26,6 +26,8 @@ class AuthController extends Controller
             'password' => $validated['password'],
         ]);
 
+        $user->refresh();
+
         return $this->tokenResponse($user, 201);
     }
 
