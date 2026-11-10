@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests\\Feature\\Api;
+namespace Tests\Feature\Api;
 
-use App\\Models\\User;
-use Illuminate\\Support\\Facades\\Hash;
-use Tests\\TestCase;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
