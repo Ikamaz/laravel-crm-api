@@ -8,6 +8,8 @@ use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_registration_creates_a_member_and_returns_a_bearer_token(): void
     {
         $response = $this->postJson('/api/v1/auth/register', [
