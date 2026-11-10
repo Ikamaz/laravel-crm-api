@@ -2,7 +2,7 @@
 
 A versioned REST API for a multi-user customer relationship management system, built with **Laravel 13** and **PHP 8.3+**.
 
-> **Project status:** The Laravel application scaffold, versioned API routing, health endpoint, and initial CI workflow are in place. Authentication and CRM workflows are still planned; they are not presented as implemented.
+> **Project status:** The Laravel 13 scaffold, versioned API, health check, Sanctum token authentication, and CI workflow are implemented. Customer, notes, and task workflows remain planned.
 
 ## Current capabilities
 
@@ -12,7 +12,10 @@ A versioned REST API for a multi-user customer relationship management system, b
 - Framework health endpoint: `GET /up`
 - MySQL configuration for local development
 - SQLite in-memory configuration for automated tests
-- PHPUnit feature tests for the API and framework health endpoints
+- Sanctum personal access tokens for registration, login, logout, and the current-user endpoint
+- Rate-limited public authentication routes and protected token-authenticated routes
+- Server-controlled `member` role assigned during registration
+- PHPUnit feature tests for health checks and authentication flows
 - GitHub Actions workflow for PHP 8.3, 8.4, and 8.5
 - API contract documenting planned authentication, roles, customers, notes, and tasks
 
@@ -26,7 +29,7 @@ A versioned REST API for a multi-user customer relationship management system, b
 | Testing | PHPUnit 12 |
 | Code style | Laravel Pint |
 | CI | GitHub Actions |
-| Authentication | Laravel Sanctum (planned) |
+| Authentication | Laravel Sanctum personal access tokens |
 
 ## Requirements
 
@@ -54,7 +57,7 @@ A versioned REST API for a multi-user customer relationship management system, b
 
 3. Create a MySQL database named `laravel_crm_api`, then set `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` in `.env`.
 
-4. Run migrations and the test suite:
+4. Run migrations (including the Sanctum personal access token table) and the test suite:
 
    ```bash
    php artisan migrate
@@ -98,6 +101,39 @@ curl -H "Accept: application/json" http://127.0.0.1:8000/api/v1/health
 
 The endpoint confirms that the Laravel application and API routing are responding. It does not yet perform database or queue dependency checks.
 
+### Authentication
+
+Public registration and login are limited to 5 requests per minute per IP address.
+
+Register:
+
+```http
+POST /api/v1/auth/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Example User",
+  "email": "user@example.com",
+  "password": "a-strong-password-123",
+  "password_confirmation": "a-strong-password-123"
+}
+```
+
+Login uses `POST /api/v1/auth/login` with `email` and `password`. Both endpoints return a Bearer token. Registration always assigns the `member` role; a client-supplied role is ignored.
+
+Send the returned token on protected requests:
+
+```http
+Authorization: Bearer <token>
+Accept: application/json
+```
+
+- `GET /api/v1/auth/me` returns the authenticated user.
+- `POST /api/v1/auth/logout` revokes only the token used for that request.
+
+Passwords must be at least 12 characters and include a matching confirmation during registration. Store issued tokens securely; the plain-text token is returned only when it is created.
+
 ## Project documentation
 
 - [API contract and access-control rules](docs/api-contract.md) — design reference for planned endpoints, roles, validation, and response formats.
@@ -106,7 +142,7 @@ The endpoint confirms that the Laravel application and API routing are respondin
 
 - [x] Laravel 13 scaffold, versioned API routing, and health endpoint
 - [x] Initial PHPUnit feature tests and GitHub Actions workflow
-- [ ] Sanctum authentication, registration, login, logout, and current-user endpoint
+- [x] Sanctum authentication, registration, login, logout, and current-user endpoint
 - [ ] User roles and authorization policies
 - [ ] Customer CRUD, filtering, pagination, and ownership rules
 - [ ] Customer notes and follow-up tasks

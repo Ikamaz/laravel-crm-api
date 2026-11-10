@@ -1,8 +1,8 @@
 # API contract (planned)
 
-> Runtime baseline: Laravel 13 and PHP 8.3+. The scaffold currently exposes only the health endpoint; the CRM endpoints below remain planned until implemented and tested.
+> Runtime baseline: Laravel 13 and PHP 8.3+. The health endpoint and Sanctum token authentication are implemented; customer, note, and task workflows remain planned.
 
-> **Design document only:** these routes and response examples describe the intended API. They are not implemented yet. Update this document alongside the code when behavior changes.
+> **Status:** Health checks and authentication routes are implemented and covered by feature tests. The remaining CRM routes below are design references, not implemented endpoints. Update this document alongside the code when behavior changes.
 
 ## Conventions
 
@@ -40,7 +40,7 @@ The first version has two roles:
 
 Ownership is enforced on the server through policies, not by trusting an `owner_id` supplied by the client. A member cannot transfer ownership by changing request data. Admin-only operations must be checked independently of UI or route visibility.
 
-## Authentication
+## Authentication (implemented)
 
 | Method | Endpoint | Access | Purpose |
 | --- | --- | --- | --- |
@@ -49,9 +49,9 @@ Ownership is enforced on the server through policies, not by trusting an `owner_
 | POST | `/auth/logout` | Authenticated | Revoke the current token |
 | GET | `/auth/me` | Authenticated | Return the current user |
 
-Registration accepts a name, email, and password. It always creates a member; clients cannot submit a role. The initial admin account will be provisioned through a controlled seed or administrative process, not public registration.
+Registration accepts a name, email, password, and password confirmation. Passwords must be 12–72 characters. It always creates a member; clients cannot submit a role. The initial admin account will be provisioned through a controlled seed or administrative process, not public registration.
 
-Login accepts email and password. The token is returned only on successful authentication. Logout revokes only the current token.
+Login accepts email and password. Successful registration and login return a Sanctum Bearer token and a user data object. Invalid credentials return a validation error. Public registration and login are limited to five requests per minute per IP. Logout revokes only the current token; `GET /auth/me` returns the authenticated user.
 
 ## Customers
 
