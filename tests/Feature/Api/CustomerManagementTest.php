@@ -161,4 +161,19 @@ class CustomerManagementTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonValidationErrors('data');
     }
+    public function test_member_can_view_their_own_customer(): void
+    {
+        $member = User::factory()->create();
+        $customer = Customer::factory()->for($member, 'owner')->create([
+            'email' => 'ada@example.com',
+        ]);
+
+        Sanctum::actingAs($member);
+
+        $this->getJson("/api/v1/customers/{$customer->id}")
+            ->assertOk()
+            ->assertJsonPath('data.id', $customer->id)
+            ->assertJsonPath('data.email', 'ada@example.com');
+    }
+
 }
