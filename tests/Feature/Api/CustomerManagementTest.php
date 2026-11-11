@@ -161,6 +161,7 @@ class CustomerManagementTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonValidationErrors('data');
     }
+
     public function test_member_can_view_their_own_customer(): void
     {
         $member = User::factory()->create();
