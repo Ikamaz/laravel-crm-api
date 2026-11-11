@@ -176,5 +176,4 @@ class CustomerManagementTest extends TestCase
             ->assertJsonPath('data.id', $customer->id)
             ->assertJsonPath('data.email', 'ada@example.com');
     }
-
 }
