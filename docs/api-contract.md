@@ -53,7 +53,7 @@ Registration accepts a name, email, password, and password confirmation. Passwor
 
 Login accepts email and password. Successful registration and login return a Sanctum Bearer token and a user data object. Invalid credentials return a validation error. Public registration and login are limited to five requests per minute per IP. Logout revokes only the current token; `GET /auth/me` returns the authenticated user.
 
-## Customers
+## Customers (implemented)
 
 Customer fields:
 
@@ -85,7 +85,7 @@ List query parameters planned for v1:
 - `sort`: allow-listed values such as `created_at`, `first_name`, and `updated_at`.
 - `direction`: `asc` or `desc`.
 
-The API derives the owner from the authenticated user when a member creates a customer. Admins may assign an owner through a separately authorized operation; ordinary customer create/update payloads cannot set `owner_id`.
+The API derives the owner from the authenticated user when a member creates a customer. The implemented create/update requests ignore `owner_id`; no owner reassignment endpoint exists. Members see only their own customers, while admins can see all customers. Ownership-protected lookups return 404 for records outside the caller's scope. DELETE uses soft deletion.
 
 ## Customer notes
 
@@ -183,7 +183,7 @@ Do not leak whether an inaccessible customer's ID exists if the application adop
 ## Initial relational model
 
 - `users`: identity, password hash, role, timestamps.
-- `customers`: owner user, contact fields, status, timestamps.
+- `customers`: owner user, contact fields, status, timestamps, nullable `deleted_at` for soft deletion.
 - `customer_notes`: customer, author user, body, timestamps.
 - `tasks`: customer, creator, optional assignee, title, description, due/completion timestamps.
 
@@ -193,7 +193,7 @@ Use foreign keys and indexes for common access paths: customer owner and status;
 
 1. Scaffold Laravel and configure the test database and CI.
 2. Add users, roles, Sanctum authentication, and authentication tests.
-3. Add customers, validation, ownership policies, and CRUD feature tests.
+3. [x] Add customers, validation, ownership policies, filtering, pagination, soft deletion, and CRUD feature tests.
 4. Add notes and task workflows with authorization tests.
 5. Add queued reminders and notifications after task behavior is stable.
 6. Publish request/response examples from verified routes and keep this contract synchronized.

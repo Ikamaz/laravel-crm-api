@@ -2,7 +2,7 @@
 
 A versioned REST API for a multi-user customer relationship management system, built with **Laravel 13** and **PHP 8.3+**.
 
-> **Project status:** The Laravel 13 scaffold, versioned API, health check, Sanctum token authentication, and CI workflow are implemented. Customer, notes, and task workflows remain planned.
+> **Project status:** The Laravel 13 scaffold, versioned API, health check, Sanctum token authentication, customer CRUD, ownership policies, and CI workflow are implemented. Notes and task workflows remain planned.
 
 ## Current capabilities
 
@@ -15,6 +15,9 @@ A versioned REST API for a multi-user customer relationship management system, b
 - Sanctum personal access tokens for registration, login, logout, and the current-user endpoint
 - Rate-limited public authentication routes and protected token-authenticated routes
 - Server-controlled `member` role assigned during registration
+- Customer CRUD with owner-scoped member access and admin-wide access
+- Customer search, status filtering, allow-listed sorting, and pagination
+- Soft deletion, validated request payloads, and JSON API resources
 - PHPUnit feature tests for health checks and authentication flows
 - GitHub Actions workflow for PHP 8.3, 8.4, and 8.5
 - API contract documenting planned authentication, roles, customers, notes, and tasks
@@ -134,6 +137,32 @@ Accept: application/json
 
 Passwords must be at least 12 characters and include a matching confirmation during registration. Store issued tokens securely; the plain-text token is returned only when it is created.
 
+## Customers
+
+All customer endpoints require a Sanctum Bearer token.
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| GET | `/api/v1/customers` | List customers visible to the authenticated user |
+| POST | `/api/v1/customers` | Create a customer owned by the authenticated user |
+| GET | `/api/v1/customers/{id}` | Retrieve a customer |
+| PATCH | `/api/v1/customers/{id}` | Update customer fields |
+| DELETE | `/api/v1/customers/{id}` | Soft-delete a customer |
+
+Members can access only their own customers. Admins can access all customers. Attempts to access another member's customer return 404. The server assigns ownership during creation; `owner_id` in a request is ignored and is never accepted as an editable field.
+
+The list endpoint supports `search`, `status`, `per_page`, `page`, `sort`, and `direction`. Page size is limited to 100, and sorting is restricted to an explicit allow-list.
+
+Example:
+
+```http
+GET /api/v1/customers?search=ada&status=lead&per_page=15
+Authorization: Bearer <token>
+Accept: application/json
+```
+
+Customer records are soft-deleted so a normal DELETE request does not immediately remove their database row. The resource response omits the internal owner foreign key.
+
 ## Project documentation
 
 - [API contract and access-control rules](docs/api-contract.md) — design reference for planned endpoints, roles, validation, and response formats.
@@ -144,7 +173,7 @@ Passwords must be at least 12 characters and include a matching confirmation dur
 - [x] Initial PHPUnit feature tests and GitHub Actions workflow
 - [x] Sanctum authentication, registration, login, logout, and current-user endpoint
 - [ ] User roles and authorization policies
-- [ ] Customer CRUD, filtering, pagination, and ownership rules
+- [x] Customer CRUD, filtering, pagination, and ownership rules
 - [ ] Customer notes and follow-up tasks
 - [ ] Queued reminders and notifications
 - [ ] Docker development environment and expanded API documentation
