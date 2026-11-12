@@ -25,7 +25,7 @@ php artisan tinker
 ```
 
 ```php
-App\\Models\\User::where('email', 'your-admin-email@example.com')->firstOrFail()->forceFill(['role' => 'admin'])->save();
+App\Models\User::where('email', 'your-admin-email@example.com')->firstOrFail()->forceFill(['role' => 'admin'])->save();
 ```
 
 ## CRM API
