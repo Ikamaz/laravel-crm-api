@@ -57,7 +57,6 @@ Open `http://127.0.0.1:8000` for Georgian or `http://127.0.0.1:8000/en` for Engl
 
 - Feature tests have been added for public lead submission, API authorization, and dashboard access; run the suite locally or through CI before merging.
 - Add lead-to-customer conversion without duplicating contact records.
-- Add conversion of a qualified inbound lead into a CRM customer without duplicating contact records.
 - Add notification delivery after choosing a client-funded email provider.
 - Add privacy notice, retention rules, and deployment hardening before collecting real customer data.
 
