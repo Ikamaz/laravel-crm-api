@@ -3,7 +3,6 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Customer;
-use App\Models\CustomerNote;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
