@@ -1,7 +1,7 @@
 <?php
 
-use App\\Http\\Controllers\\AgencyLeadController;
-use Illuminate\\Support\\Facades\\Route;
+use App\Http\Controllers\AgencyLeadController;
+use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'agency.home', ['locale' => 'ka'])->name('agency.home.ka');
 Route::view('/en', 'agency.home', ['locale' => 'en'])->name('agency.home.en');
