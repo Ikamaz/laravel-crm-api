@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0b1220">
-    <title>{{ $locale === 'ka' ? 'ციფრული გადაწყვეტილებები ბიზნესისთვის' : 'Digital solutions for growing businesses' }}</title>
+    <title>{{ $locale === 'ka' ? 'NextTech — ციფრული გადაწყვეტილებები ბიზნესისთვის' : 'NextTech — Digital solutions for growing businesses' }}</title>
     <meta name="description" content="{{ $locale === 'ka' ? 'თანამედროვე ვებგვერდები და ბიზნეს პროცესების ავტომატიზაცია.' : 'Modern websites and practical business automation for growing companies.' }}">
     <style>
         :root{color-scheme:dark;--bg:#0b1220;--panel:#111c2e;--line:#26364d;--muted:#9aabc1;--text:#f4f7fb;--blue:#67a8ff;--cyan:#75e0d1}
@@ -123,6 +123,6 @@
         </div>
     </section>
 </main>
-<footer class="wrap footer"><span>DIGITALSTUDIO © {{ date('Y') }}</span><span>{{ $t['footer'] }}</span></footer>
+<footer class="wrap footer"><span>NextTech © {{ date('Y') }}</span><span>{{ $t['footer'] }}</span></footer>
 </body>
 </html>
