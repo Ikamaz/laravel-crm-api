@@ -2,7 +2,7 @@
 
 A versioned REST API for a multi-user customer relationship management system, built with **Laravel 13** and **PHP 8.3+**.
 
-> **Project status:** The Laravel 13 scaffold, versioned API, health check, Sanctum token authentication, customer CRUD, ownership policies, and CI workflow are implemented. Notes and task workflows remain planned.
+> **Project status:** The Laravel 13 scaffold, versioned API, health check, Sanctum token authentication, customer CRUD, ownership policies, customer notes, and CI workflow are implemented. Follow-up task workflows remain planned.
 
 ## Current capabilities
 
@@ -16,6 +16,7 @@ A versioned REST API for a multi-user customer relationship management system, b
 - Rate-limited public authentication routes and protected token-authenticated routes
 - Server-controlled `member` role assigned during registration
 - Customer CRUD with owner-scoped member access and admin-wide access
+- Customer notes with author attribution, owner/admin access rules, and append-only text
 - Customer search, status filtering, allow-listed sorting, and pagination
 - Soft deletion, validated request payloads, and JSON API resources
 - PHPUnit feature tests for health checks and authentication flows
@@ -163,6 +164,18 @@ Accept: application/json
 
 Customer records are soft-deleted so a normal DELETE request does not immediately remove their database row. The resource response omits the internal owner foreign key.
 
+## Customer notes
+
+All note endpoints require a Sanctum Bearer token.
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| GET | `/api/v1/customers/{customer}/notes` | List a customer's notes (paginated, newest first) |
+| POST | `/api/v1/customers/{customer}/notes` | Add a note to a customer |
+| DELETE | `/api/v1/customers/{customer}/notes/{note}` | Delete a note when authorized |
+
+A note body is required and limited to 5,000 characters. The API assigns the author from the authenticated user; client-supplied `user_id` values are ignored. Customer owners and admins can list and add notes. A note author, the customer owner, or an admin can delete a note. A note cannot be deleted through a different customer's nested route.
+
 ## Project documentation
 
 - [API contract and access-control rules](docs/api-contract.md) — design reference for planned endpoints, roles, validation, and response formats.
@@ -172,9 +185,10 @@ Customer records are soft-deleted so a normal DELETE request does not immediatel
 - [x] Laravel 13 scaffold, versioned API routing, and health endpoint
 - [x] Initial PHPUnit feature tests and GitHub Actions workflow
 - [x] Sanctum authentication, registration, login, logout, and current-user endpoint
-- [ ] User roles and authorization policies
+- [x] User roles and authorization policies
 - [x] Customer CRUD, filtering, pagination, and ownership rules
-- [ ] Customer notes and follow-up tasks
+- [x] Customer notes
+- [ ] Follow-up tasks
 - [ ] Queued reminders and notifications
 - [ ] Docker development environment and expanded API documentation
 

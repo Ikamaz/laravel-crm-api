@@ -1,8 +1,8 @@
 # API contract (planned)
 
-> Runtime baseline: Laravel 13 and PHP 8.3+. The health endpoint and Sanctum token authentication are implemented; customer, note, and task workflows remain planned.
+> Runtime baseline: Laravel 13 and PHP 8.3+. The health endpoint, Sanctum token authentication, customer management, and customer notes are implemented; follow-up tasks remain planned.
 
-> **Status:** Health checks and authentication routes are implemented and covered by feature tests. The remaining CRM routes below are design references, not implemented endpoints. Update this document alongside the code when behavior changes.
+> **Status:** Health checks, authentication, customer management, and customer notes are implemented and covered by feature tests. Follow-up task routes below remain design references. Update this document alongside the code when behavior changes.
 
 ## Conventions
 
@@ -87,9 +87,9 @@ List query parameters planned for v1:
 
 The API derives the owner from the authenticated user when a member creates a customer. The implemented create/update requests ignore `owner_id`; no owner reassignment endpoint exists. Members see only their own customers, while admins can see all customers. Ownership-protected lookups return 404 for records outside the caller's scope. DELETE uses soft deletion.
 
-## Customer notes
+## Customer notes (implemented)
 
-Notes are append-oriented records attached to a customer. The first version supports creating, listing, and deleting notes; editing note text is intentionally excluded to preserve a simple activity history.
+Notes are append-oriented records attached to a customer. The API supports creating, listing, and deleting notes; editing note text is intentionally excluded to preserve a simple activity history. Customer owners and admins can list and create notes. A note author, the customer owner, or an admin can delete a note. Nested deletion verifies that the note belongs to the customer in the URL.
 
 | Method | Endpoint | Access | Purpose |
 | --- | --- | --- | --- |
@@ -97,7 +97,7 @@ Notes are append-oriented records attached to a customer. The first version supp
 | POST | `/customers/{customer}/notes` | Customer owner or admin | Add a note |
 | DELETE | `/customers/{customer}/notes/{note}` | Note author, customer owner, or admin | Delete a note |
 
-A note contains `id`, `customer_id`, `user_id`, `body`, `created_at`, and `updated_at`. The author is taken from the authenticated user.
+A note contains `id`, `customer_id`, `body`, an `author` object with `id` and `name`, `created_at`, and `updated_at`. The author is taken from the authenticated user; client-supplied `user_id` is ignored. The body is required and limited to 5,000 characters. Notes are returned newest first in pages of 15.
 
 ## Follow-up tasks
 
@@ -194,12 +194,13 @@ Use foreign keys and indexes for common access paths: customer owner and status;
 1. Scaffold Laravel and configure the test database and CI.
 2. Add users, roles, Sanctum authentication, and authentication tests.
 3. [x] Add customers, validation, ownership policies, filtering, pagination, soft deletion, and CRUD feature tests.
-4. Add notes and task workflows with authorization tests.
-5. Add queued reminders and notifications after task behavior is stable.
-6. Publish request/response examples from verified routes and keep this contract synchronized.
+4. [x] Add customer notes with owner/admin access, author attribution, and nested-route authorization tests.
+5. Add follow-up task workflows with assignment and authorization tests.
+6. Add queued reminders and notifications after task behavior is stable.
+7. Publish request/response examples from verified routes and keep this contract synchronized.
 
 ## Open implementation decisions
 
 - Choose whether inaccessible resources return 403 or 404 consistently; this document currently prefers 404 for ownership-scoped lookups.
 - The scaffold targets Laravel 13 and PHP 8.3 or newer; keep CI and the local setup guide aligned with the supported runtime.
-- Decide whether customer deletion is hard-delete or soft-delete before writing the first customer migration.
+- Add a controlled admin-provisioning process before deploying the API; public registration intentionally creates members only.

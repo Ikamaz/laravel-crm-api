@@ -22,4 +22,11 @@ Route::prefix('auth')->name('auth.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('customers', CustomerController::class)
         ->only(['index', 'store', 'show', 'update', 'destroy']);
+
+    Route::get('/customers/{customer}/notes', [CustomerNoteController::class, 'index'])
+        ->name('customers.notes.index');
+    Route::post('/customers/{customer}/notes', [CustomerNoteController::class, 'store'])
+        ->name('customers.notes.store');
+    Route::delete('/customers/{customer}/notes/{note}', [CustomerNoteController::class, 'destroy'])
+        ->name('customers.notes.destroy');
 });
