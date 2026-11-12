@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\Customer;
+use App\Models\CustomerNote;
+use App\Policies\CustomerNotePolicy;
 use App\Policies\CustomerPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
