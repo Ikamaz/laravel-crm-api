@@ -1,9 +1,9 @@
 <?php
 
-namespace App\\Policies;
+namespace App\Policies;
 
-use App\\Models\\InboundLead;
-use App\\Models\\User;
+use App\Models\InboundLead;
+use App\Models\User;
 
 class InboundLeadPolicy
 {
