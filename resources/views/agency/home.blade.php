@@ -30,7 +30,7 @@
         'crm_h'=>'მოთხოვნების მართვა','crm_p'=>'მომხმარებლის მოთხოვნების ერთ სივრცეში შეგროვება, სტატუსები და შემდგომი კომუნიკაციის კონტროლი.',
         'process_k'=>'როგორ ვმუშაობთ','process_h'=>'მარტივი პროცესი, გამჭვირვალე შედეგი','step1'=>'ვარკვევთ საჭიროებას','step1p'=>'ვაზუსტებთ მიზანს, მომხმარებლის გზასა და აუცილებელ ფუნქციებს.','step2'=>'ვქმნით და ვამოწმებთ','step2p'=>'ვაწყობთ ვებგვერდსა და ავტომატიზაციას, შემდეგ ვამოწმებთ რეალურ სცენარებს.','step3'=>'ვუშვებთ და ვუვლით','step3p'=>'გადმოგცემთ სისტემას, ინსტრუქციას და საჭიროების შემთხვევაში ვაგრძელებთ მხარდაჭერას.',
         'contact_k'=>'დავიწყოთ საუბარი','contact_h'=>'მოგვიყევით თქვენი პროექტის შესახებ','contact_p'=>'მოკლედ აღწერეთ რა გჭირდებათ. დაგიკავშირდებით და ერთად განვიხილავთ შესაბამის გადაწყვეტას.',
-        'name'=>'სახელი','email'=>'ელფოსტა','phone'=>'ტელეფონი','company'=>'კომპანია','service'=>'რა გჭირდებათ?','choose'=>'აირჩიეთ სერვისი','website'=>'ვებგვერდი','automation'=>'ავტომატიზაცია','bundle'=>'ვებგვერდი + ავტომატიზაცია','other'=>'სხვა','message'=>'პროექტის მოკლე აღწერა','consent'=>'ვეთანხმები ჩემი საკონტაქტო ინფორმაციის გამოყენებას ამ მოთხოვნაზე პასუხის გასაცემად.','send'=>'მოთხოვნის გაგზავნა','success'=>'მადლობა! თქვენი მოთხოვნა მიღებულია.','required'=>'შეავსეთ სავალდებულო ველები.','footer'=>'ციფრული გადაწყვეტილებები ბიზნესის ზრდისთვის.'
+        'name'=>'სახელი','email'=>'ელფოსტა','phone'=>'ტელეფონი','company'=>'კომპანია','service'=>'რა გჭირდებათ?','choose'=>'აირჩიეთ სერვისი','website'=>'ვებგვერდი','automation'=>'ავტომატიზაცია','bundle'=>'ვებგვერდი + ავტომატიზაცია','other'=>'სხვა','message'=>'პროექტის მოკლე აღწერა','consent'=>'ვეთანხმები ჩემი საკონტაქტო ინფორმაციის გამოყენებას ამ მოთხოვნაზე პასუხის გასაცემად.','privacy'=>'მონაცემები გამოიყენება მხოლოდ თქვენს მოთხოვნაზე საპასუხოდ. არ გამოგზავნოთ სენსიტიური ინფორმაცია.','send'=>'მოთხოვნის გაგზავნა','success'=>'მადლობა! თქვენი მოთხოვნა მიღებულია.','required'=>'შეავსეთ სავალდებულო ველები.','footer'=>'ციფრული გადაწყვეტილებები ბიზნესის ზრდისთვის.'
     ] : [
         'nav_services'=>'Services','nav_process'=>'Process','nav_contact'=>'Contact',
         'eyebrow'=>'Digital solutions for growing businesses',
@@ -44,7 +44,7 @@
         'crm_h'=>'Enquiry management','crm_p'=>'Keep customer enquiries in one place with clear statuses and follow-up visibility.',
         'process_k'=>'How we work','process_h'=>'A simple process. A clear result.','step1'=>'Understand the need','step1p'=>'We clarify the goal, customer journey and essential functionality.','step2'=>'Build and test','step2p'=>'We build the website and automation, then test realistic scenarios.','step3'=>'Launch and support','step3p'=>'We hand over the system, explain how it works and provide ongoing support if needed.',
         'contact_k'=>'Start a conversation','contact_h'=>'Tell us about your project','contact_p'=>'Share a few details. We will get back to you and discuss a practical solution.',
-        'name'=>'Your name','email'=>'Email','phone'=>'Phone','company'=>'Company','service'=>'What do you need?','choose'=>'Choose a service','website'=>'Business website','automation'=>'Workflow automation','bundle'=>'Website + automation','other'=>'Something else','message'=>'Brief project description','consent'=>'I agree that my contact details may be used to respond to this enquiry.','send'=>'Send enquiry','success'=>'Thank you! Your enquiry has been received.','required'=>'Please check the required fields.','footer'=>'Digital solutions for business growth.'
+        'name'=>'Your name','email'=>'Email','phone'=>'Phone','company'=>'Company','service'=>'What do you need?','choose'=>'Choose a service','website'=>'Business website','automation'=>'Workflow automation','bundle'=>'Website + automation','other'=>'Something else','message'=>'Brief project description','consent'=>'I agree that my contact details may be used to respond to this enquiry.','privacy'=>'Your details are used only to respond to this enquiry. Please do not submit sensitive information.','send'=>'Send enquiry','success'=>'Thank you! Your enquiry has been received.','required'=>'Please check the required fields.','footer'=>'Digital solutions for business growth.'
     ];
 @endphp
 <header class="wrap nav">
@@ -68,12 +68,12 @@
             </div>
         </div>
         <div class="visual" aria-label="{{ $t['dashboard'] }}">
-            <div class="visual-top"><span>◈ &nbsp; {{ $t['dashboard'] }}</span><span>● LIVE DEMO</span></div>
+            <div class="visual-top"><span>◈ &nbsp; {{ $t['dashboard'] }}</span><span>● CONCEPT PREVIEW</span></div>
             <div class="metric"><small>{{ $t['overview'] }}</small><strong>01 — 04</strong></div>
             <div class="bars">
-                <div><div class="minirow"><span>{{ $t['leads'] }}</span><b>+24%</b></div><div class="bar"><i style="width:78%"></i></div></div>
-                <div><div class="minirow"><span>{{ $t['automated'] }}</span><b>3 flows</b></div><div class="bar"><i style="width:62%"></i></div></div>
-                <div><div class="minirow"><span>{{ $t['response'] }}</span><b>Faster</b></div><div class="bar"><i style="width:88%"></i></div></div>
+                <div><div class="minirow"><span>{{ $t['leads'] }}</span><b>INBOX</b></div><div class="bar"><i style="width:78%"></i></div></div>
+                <div><div class="minirow"><span>{{ $t['automated'] }}</span><b>3 steps</b></div><div class="bar"><i style="width:62%"></i></div></div>
+                <div><div class="minirow"><span>{{ $t['response'] }}</span><b>READY</b></div><div class="bar"><i style="width:88%"></i></div></div>
             </div>
         </div>
     </section>
@@ -118,6 +118,7 @@
                         <div class="field full"><button class="btn primary" type="submit">{{ $t['send'] }} ↗</button></div>
                     </div>
                 </form>
+                <p class="sub" style="font-size:11px;margin-top:10px">{{ $t['privacy'] }}</p>
             </div>
         </div>
     </section>
