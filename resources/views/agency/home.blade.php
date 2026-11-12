@@ -122,6 +122,6 @@
         </div>
     </section>
 </main>
-<footer class="wrap footer"><span>YOURSTUDIO © {{ date('Y') }}</span><span>{{ $t['footer'] }}</span></footer>
+<footer class="wrap footer"><span>DIGITALSTUDIO © {{ date('Y') }}</span><span>{{ $t['footer'] }}</span></footer>
 </body>
 </html>
