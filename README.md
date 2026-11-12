@@ -21,7 +21,7 @@ A versioned REST API for a multi-user customer relationship management system, b
 - Soft deletion, validated request payloads, and JSON API resources
 - PHPUnit feature tests for health checks and authentication flows
 - GitHub Actions workflow for PHP 8.3, 8.4, and 8.5
-- API contract documenting planned authentication, roles, customers, notes, and tasks
+- API contract documenting implemented authentication, customer and notes APIs, roles, and planned tasks
 
 ## Tech stack
 
@@ -178,7 +178,7 @@ A note body is required and limited to 5,000 characters. The API assigns the aut
 
 ## Project documentation
 
-- [API contract and access-control rules](docs/api-contract.md) — design reference for planned endpoints, roles, validation, and response formats.
+- [API contract and access-control rules](docs/api-contract.md) — implemented endpoint behavior, authorization rules, validation, and remaining planned workflows.
 
 ## Roadmap
 
