@@ -1,6 +1,6 @@
-# Agency platform foundation
+# NextTech agency platform
 
-This repository is being extended into a bilingual digital agency website and internal lead-management API.
+NextTech is a bilingual digital agency focused on business websites and practical workflow automation. This repository contains its public website and internal lead-management foundation.
 
 ## Public website
 
@@ -63,3 +63,12 @@ Open `http://127.0.0.1:8000` for Georgian or `http://127.0.0.1:8000/en` for Engl
 ## Zero-budget deployment principle
 
 Develop and demonstrate locally first. Production hosting, domain registration, outbound email, and any paid AI API usage should be purchased by the agency owner or paid directly by the client. Do not expose the n8n editor or CRM administration to the public internet without authentication and deployment hardening.
+
+
+## Brand identity
+
+- Brand: NextTech
+- Positioning: Technology that moves business forward
+- Services: Business websites, workflow automation, and enquiry management
+- Website languages: Georgian and English
+- Visual direction: Midnight navy, electric blue, and white
