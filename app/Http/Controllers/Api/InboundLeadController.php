@@ -1,13 +1,13 @@
 <?php
 
-namespace App\\Http\\Controllers\\Api;
+namespace App\Http\Controllers\Api;
 
-use App\\Http\\Controllers\\Controller;
-use App\\Http\\Resources\\InboundLeadResource;
-use App\\Models\\InboundLead;
-use Illuminate\\Http\\Request;
-use Illuminate\\Http\\Resources\\Json\\AnonymousResourceCollection;
-use Illuminate\\Support\\Facades\\Gate;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\InboundLeadResource;
+use App\Models\InboundLead;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 
 class InboundLeadController extends Controller
 {
