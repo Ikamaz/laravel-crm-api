@@ -1,4 +1,4 @@
-# API contract (planned)
+# API contract
 
 > Runtime baseline: Laravel 13 and PHP 8.3+. The health endpoint, Sanctum token authentication, customer management, and customer notes are implemented; follow-up tasks remain planned.
 
@@ -76,7 +76,7 @@ Customer fields:
 | PATCH | `/customers/{customer}` | Owner or admin | Update editable fields |
 | DELETE | `/customers/{customer}` | Owner or admin | Delete a customer |
 
-List query parameters planned for v1:
+Customer list query parameters:
 
 - `search`: search first name, last name, email, and company.
 - `status`: one of the supported status values.
