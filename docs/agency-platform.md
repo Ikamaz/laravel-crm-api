@@ -11,6 +11,23 @@ This repository is being extended into a bilingual digital agency website and in
 - The form requires an email address or phone number and explicit enquiry-response consent.
 - A honeypot field provides basic bot filtering. It is not a substitute for a production anti-abuse service.
 
+## Browser-based CRM
+
+- Admin login: `/admin/login`
+- Lead dashboard: `/admin/leads`
+- Only users with the `admin` role can sign in and view inbound enquiries.
+- The dashboard supports filtering by status and updating a lead through the pipeline.
+
+To grant administrator access to an existing account, use Tinker after creating that user:
+
+```bash
+php artisan tinker
+```
+
+```php
+App\\Models\\User::where('email', 'your-admin-email@example.com')->firstOrFail()->forceFill(['role' => 'admin'])->save();
+```
+
 ## CRM API
 
 All endpoints use the existing versioned API prefix `/api/v1`.
@@ -38,8 +55,8 @@ Open `http://127.0.0.1:8000` for Georgian or `http://127.0.0.1:8000/en` for Engl
 
 ## Next implementation steps
 
-- Feature tests have been added for public lead submission and admin-only API access; run the suite locally or through CI before merging.
-- Add a secure internal browser-based CRM dashboard for lead triage.
+- Feature tests have been added for public lead submission, API authorization, and dashboard access; run the suite locally or through CI before merging.
+- Add lead-to-customer conversion without duplicating contact records.
 - Add conversion of a qualified inbound lead into a CRM customer without duplicating contact records.
 - Add notification delivery after choosing a client-funded email provider.
 - Add privacy notice, retention rules, and deployment hardening before collecting real customer data.
