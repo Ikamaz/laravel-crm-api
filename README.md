@@ -2,7 +2,7 @@
 
 A versioned REST API for a multi-user customer relationship management system, built with **Laravel 13** and **PHP 8.3+**.
 
-> **Project status:** The Laravel 13 CRM API includes Sanctum authentication, customer CRUD, ownership policies, customer notes, and CI. The agency foundation adds a bilingual public website, validated lead intake, and admin-only inbound lead endpoints. The internal browser-based CRM dashboard and production deployment remain planned.
+> **Project status:** The Laravel 13 CRM API includes Sanctum authentication, customer CRUD, ownership policies, customer notes, and CI. The agency foundation adds a bilingual public website, validated lead intake, and admin-only inbound lead endpoints. The browser-based CRM dashboard is included; production deployment remains planned.
 
 ## Current capabilities
 
