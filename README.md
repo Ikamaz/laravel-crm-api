@@ -2,7 +2,7 @@
 
 A versioned REST API for a multi-user customer relationship management system, built with **Laravel 13** and **PHP 8.3+**.
 
-> **Project status:** The Laravel 13 scaffold, versioned API, health check, Sanctum token authentication, customer CRUD, ownership policies, customer notes, and CI workflow are implemented. Follow-up task workflows remain planned.
+> **Project status:** The Laravel 13 CRM API includes Sanctum authentication, customer CRUD, ownership policies, customer notes, and CI. The agency foundation adds a bilingual public website, validated lead intake, and admin-only inbound lead endpoints. The browser-based CRM dashboard is included; production deployment remains planned.
 
 ## Current capabilities
 
@@ -17,6 +17,10 @@ A versioned REST API for a multi-user customer relationship management system, b
 - Server-controlled `member` role assigned during registration
 - Customer CRUD with owner-scoped member access and admin-wide access
 - Customer notes with author attribution, owner/admin access rules, and append-only text
+- Bilingual Georgian/English agency landing pages with responsive styling
+- Public lead intake with validation, consent timestamp, honeypot field, and request throttling
+- Admin-only inbound lead API with status filtering and status updates
+- Session-authenticated administrator dashboard for lead triage and status updates
 - Customer search, status filtering, allow-listed sorting, and pagination
 - Soft deletion, validated request payloads, and JSON API resources
 - PHPUnit feature tests for health checks and authentication flows
@@ -188,9 +192,16 @@ A note body is required and limited to 5,000 characters. The API assigns the aut
 - [x] User roles and authorization policies
 - [x] Customer CRUD, filtering, pagination, and ownership rules
 - [x] Customer notes
+- [x] Bilingual agency website and public lead intake
+- [x] Admin-only inbound lead management API
+- [x] Internal browser-based CRM dashboard
 - [ ] Follow-up tasks
 - [ ] Queued reminders and notifications
 - [ ] Docker development environment and expanded API documentation
+
+## Agency platform
+
+See [Agency platform foundation](docs/agency-platform.md) for public routes, CRM endpoints, local setup, data-handling notes, and the next implementation steps.
 
 ## Engineering principles
 
