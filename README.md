@@ -20,6 +20,7 @@ A versioned REST API for a multi-user customer relationship management system, b
 - Bilingual Georgian/English agency landing pages with responsive styling
 - Public lead intake with validation, consent timestamp, honeypot field, and request throttling
 - Admin-only inbound lead API with status filtering and status updates
+- Session-authenticated administrator dashboard for lead triage and status updates
 - Customer search, status filtering, allow-listed sorting, and pagination
 - Soft deletion, validated request payloads, and JSON API resources
 - PHPUnit feature tests for health checks and authentication flows
@@ -193,7 +194,7 @@ A note body is required and limited to 5,000 characters. The API assigns the aut
 - [x] Customer notes
 - [x] Bilingual agency website and public lead intake
 - [x] Admin-only inbound lead management API
-- [ ] Internal browser-based CRM dashboard
+- [x] Internal browser-based CRM dashboard
 - [ ] Follow-up tasks
 - [ ] Queued reminders and notifications
 - [ ] Docker development environment and expanded API documentation
