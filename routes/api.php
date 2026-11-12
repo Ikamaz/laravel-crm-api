@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\CustomerController;
-use App\Http\Controllers\Api\CustomerNoteController;
-use App\Http\Controllers\Api\HealthController;
-use Illuminate\Support\Facades\Route;
+use App\\Http\\Controllers\\Api\\AuthController;
+use App\\Http\\Controllers\\Api\\CustomerController;
+use App\\Http\\Controllers\\Api\\CustomerNoteController;
+use App\\Http\\Controllers\\Api\\HealthController;
+use App\\Http\\Controllers\\Api\\InboundLeadController;
+use Illuminate\\Support\\Facades\\Route;
 
 Route::get('/health', HealthController::class)->name('health');
 
@@ -30,4 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('customers.notes.store');
     Route::delete('/customers/{customer}/notes/{note}', [CustomerNoteController::class, 'destroy'])
         ->name('customers.notes.destroy');
+
+    Route::apiResource('inbound-leads', InboundLeadController::class)
+        ->only(['index', 'show', 'update']);
 });
