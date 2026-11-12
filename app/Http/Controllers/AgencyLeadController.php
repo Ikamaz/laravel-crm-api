@@ -1,11 +1,10 @@
 <?php
 
-namespace App\\Http\\Controllers;
+namespace App\Http\Controllers;
 
-use App\\Models\\InboundLead;
-use Illuminate\\Http\\RedirectResponse;
-use Illuminate\\Http\\Request;
-use Illuminate\\Validation\\ValidationException;
+use App\Models\InboundLead;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class AgencyLeadController extends Controller
 {
