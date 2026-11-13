@@ -15,12 +15,12 @@ class TaskResource extends JsonResource
             'description' => $this->description,
             'due_at' => $this->due_at?->toISOString(),
             'completed_at' => $this->completed_at?->toISOString(),
-            'customer' => $this->whenLoaded('customer', fn () => [
+            'customer' => $this->whenLoaded('customer', fn () => $this->customer ? [
                 'id' => $this->customer->id,
                 'first_name' => $this->customer->first_name,
                 'last_name' => $this->customer->last_name,
                 'company' => $this->customer->company,
-            ]),
+            ] : null),
             'creator' => $this->whenLoaded('creator', fn () => [
                 'id' => $this->creator->id,
                 'name' => $this->creator->name,
