@@ -209,6 +209,28 @@ class TaskManagementTest extends TestCase
         $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
     }
 
+    public function test_customer_owner_can_still_access_tasks_after_soft_deleting_the_customer(): void
+    {
+        $owner = User::factory()->create();
+        $customer = Customer::factory()->for($owner, 'owner')->create();
+        $task = Task::factory()
+            ->for($customer)
+            ->for($owner, 'creator')
+            ->create();
+
+        $customer->delete();
+
+        Sanctum::actingAs($owner);
+
+        $this->getJson("/api/v1/tasks/{$task->id}")
+            ->assertOk()
+            ->assertJsonPath('data.customer.id', $customer->id);
+
+        $this->getJson('/api/v1/tasks')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1);
+    }
+
     public function test_task_list_can_filter_open_completed_and_overdue_tasks(): void
     {
         $owner = User::factory()->create();
