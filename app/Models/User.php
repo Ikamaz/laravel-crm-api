@@ -21,6 +21,16 @@ class User extends Authenticatable
         return $this->hasMany(Customer::class, 'owner_id');
     }
 
+    public function createdTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'created_by');
+    }
+
+    public function assignedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';

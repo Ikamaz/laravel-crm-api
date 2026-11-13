@@ -2,14 +2,13 @@
 
 A versioned REST API for a multi-user customer relationship management system, built with **Laravel 13** and **PHP 8.3+**.
 
-> **Project status:** The Laravel 13 scaffold, versioned API, health check, Sanctum token authentication, customer CRUD, ownership policies, customer notes, and CI workflow are implemented. Follow-up task workflows remain planned.
+> **Project status:** Authentication, customer CRUD, customer notes, follow-up task workflows, authorization policies, feature tests, and GitHub Actions CI are implemented. Queued reminders, notifications, Docker, and a committed dependency lockfile remain planned.
 
 ## Current capabilities
 
 - Laravel 13 application bootstrap and environment configuration
 - Versioned API routing under `/api/v1`
 - JSON health endpoint: `GET /api/v1/health`
-- Framework health endpoint: `GET /up`
 - MySQL configuration for local development
 - SQLite in-memory configuration for automated tests
 - Sanctum personal access tokens for registration, login, logout, and the current-user endpoint
@@ -17,11 +16,14 @@ A versioned REST API for a multi-user customer relationship management system, b
 - Server-controlled `member` role assigned during registration
 - Customer CRUD with owner-scoped member access and admin-wide access
 - Customer notes with author attribution, owner/admin access rules, and append-only text
+- Follow-up tasks with optional assignees, due dates, completion tracking, and access policies
+- Task list visibility scoped to owned customers and tasks assigned to the authenticated member
+- Task filtering by open, completed, or overdue status
 - Customer search, status filtering, allow-listed sorting, and pagination
-- Soft deletion, validated request payloads, and JSON API resources
-- PHPUnit feature tests for health checks and authentication flows
+- Validated request payloads and consistent JSON API resources
+- PHPUnit feature tests for authentication, customer, note, and task workflows
 - GitHub Actions workflow for PHP 8.3, 8.4, and 8.5
-- API contract documenting implemented authentication, customer and notes APIs, roles, and planned tasks
+- API contract documenting implemented endpoints, access rules, and planned background workflows
 
 ## Tech stack
 
@@ -61,7 +63,7 @@ A versioned REST API for a multi-user customer relationship management system, b
 
 3. Create a MySQL database named `laravel_crm_api`, then set `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` in `.env`.
 
-4. Run migrations (including the Sanctum personal access token table) and the test suite:
+4. Run migrations and the test suite:
 
    ```bash
    php artisan migrate
@@ -95,12 +97,6 @@ Example response:
     "service": "Laravel CRM API"
   }
 }
-```
-
-Try it locally:
-
-```bash
-curl -H "Accept: application/json" http://127.0.0.1:8000/api/v1/health
 ```
 
 The endpoint confirms that the Laravel application and API routing are responding. It does not yet perform database or queue dependency checks.
@@ -176,9 +172,43 @@ All note endpoints require a Sanctum Bearer token.
 
 A note body is required and limited to 5,000 characters. The API assigns the author from the authenticated user; client-supplied `user_id` values are ignored. Customer owners and admins can list and add notes. A note author, the customer owner, or an admin can delete a note. A note cannot be deleted through a different customer's nested route.
 
+## Follow-up tasks
+
+All task endpoints require a Sanctum Bearer token.
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| GET | `/api/v1/tasks` | List tasks visible to the authenticated user |
+| POST | `/api/v1/customers/{customer}/tasks` | Create a follow-up task |
+| GET | `/api/v1/tasks/{task}` | Retrieve a task |
+| PATCH | `/api/v1/tasks/{task}` | Update task details or completion |
+| DELETE | `/api/v1/tasks/{task}` | Delete a task when authorized |
+
+Task creation requires the customer owner or an admin. The server assigns the creator; clients cannot set `created_by` or `completed_at` during creation. Assignment is optional and uses `assignee_id`. Only the customer owner or an admin can change the assignee. The assignee can view and update a task, including marking it complete, but cannot reassign or delete it solely because they are assigned.
+
+Members see tasks attached to customers they own or tasks assigned to them. Admins can see all tasks. The list supports `status=open`, `status=completed`, and `status=overdue`, plus `per_page`, `page`, `sort`, and `direction`. Page size is limited to 100.
+
+Example:
+
+```http
+POST /api/v1/customers/42/tasks
+Authorization: Bearer <token>
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Call about the proposal",
+  "description": "Confirm the revised delivery date.",
+  "due_at": "2026-11-20T10:00:00Z",
+  "assignee_id": 7
+}
+```
+
+Set `completed_at` to an ISO 8601 timestamp to complete a task, or set it to `null` to reopen it. Due dates and completion timestamps are returned in ISO 8601 format.
+
 ## Project documentation
 
-- [API contract and access-control rules](docs/api-contract.md) — implemented endpoint behavior, authorization rules, validation, and remaining planned workflows.
+- [API contract and access-control rules](docs/api-contract.md) — endpoint behavior, authorization rules, validation, and remaining planned workflows.
 
 ## Roadmap
 
@@ -188,13 +218,14 @@ A note body is required and limited to 5,000 characters. The API assigns the aut
 - [x] User roles and authorization policies
 - [x] Customer CRUD, filtering, pagination, and ownership rules
 - [x] Customer notes
-- [ ] Follow-up tasks
+- [x] Follow-up tasks, assignment, completion, filtering, and access policies
 - [ ] Queued reminders and notifications
-- [ ] Docker development environment and expanded API documentation
+- [ ] Docker development environment
+- [ ] Commit Composer lockfile and expand API documentation with verified response examples
 
 ## Engineering principles
 
-- Enforce authorization on the server; never trust client-supplied ownership or role fields.
+- Enforce authorization on the server; never trust client-supplied ownership, creator, or role fields.
 - Validate all incoming data and return predictable JSON errors.
 - Keep controllers focused and move reusable business rules into appropriate classes.
 - Cover important behavior with feature tests.

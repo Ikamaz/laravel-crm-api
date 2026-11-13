@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\CustomerNoteController;
 use App\Http\Controllers\Api\HealthController;
+use App\Http\Controllers\Api\TaskController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class)->name('health');
@@ -30,4 +31,11 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('customers.notes.store');
     Route::delete('/customers/{customer}/notes/{note}', [CustomerNoteController::class, 'destroy'])
         ->name('customers.notes.destroy');
+
+    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
+    Route::post('/customers/{customer}/tasks', [TaskController::class, 'store'])
+        ->name('customers.tasks.store');
+    Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
+    Route::patch('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 });
