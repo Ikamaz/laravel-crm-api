@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api;
 
 use App\Models\Customer;
+use App\Models\Task;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
@@ -16,7 +17,7 @@ class StoreTaskRequest extends FormRequest
             return false;
         }
 
-        Gate::authorize('create', [\App\Models\Task::class, $customer]);
+        Gate::authorize('create', [Task::class, $customer]);
 
         return true;
     }
