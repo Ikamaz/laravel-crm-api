@@ -1,6 +1,6 @@
 # API contract
 
-> Runtime baseline: Laravel 13 and PHP 8.3+. Health checks, Sanctum token authentication, customer management, customer notes, and follow-up task workflows are implemented and covered by feature tests. Queued reminders and notifications remain planned.
+> Runtime baseline: Laravel 13 and PHP 8.3+. Health checks, Sanctum token authentication, customer management, customer notes, follow-up task workflows, and scheduled queued reminders are implemented and covered by feature tests.
 
 ## Conventions
 
@@ -137,6 +137,12 @@ Task list visibility is scoped to tasks attached to customers owned by the membe
 
 Task resources include task fields, a customer summary, creator and assignee summaries, and ISO 8601 timestamps. The list is paginated.
 
+### Task reminders (implemented)
+
+The scheduler runs `tasks:send-due-reminders` every minute. The command selects incomplete tasks with a due date from now through the next 24 hours and queues a `TaskDueReminder` notification for the assignee. If the task has no assignee, the creator is notified. Completed, overdue, and undated tasks are skipped. The internal `reminder_dispatched_at` timestamp prevents repeat dispatch for the same task.
+
+Reminders use Laravel's database notification channel and the database queue. The notification payload contains `type`, `task_id`, `customer_id`, `title`, and `due_at`. A queue worker must be running for queued notifications to be processed. Failed jobs are stored in `failed_jobs`. Reading notifications through the API and marking them as read are not implemented in this version.
+
 ## Response format
 
 A successful single-resource response uses a `data` object:
@@ -179,7 +185,9 @@ Validation errors return HTTP 422 with a message and field-keyed errors. Standar
 - `users`: identity, password hash, role, timestamps.
 - `customers`: owner user, contact fields, status, timestamps, nullable `deleted_at` for soft deletion.
 - `customer_notes`: customer, author user, body, timestamps.
-- `tasks`: customer, creator, optional assignee, title, description, due/completion timestamps.
+- `tasks`: customer, creator, optional assignee, title, description, due/completion timestamps, and internal reminder dispatch timestamp.
+- `notifications`: Laravel database notifications addressed to users.
+- `jobs` and `failed_jobs`: pending and failed database-queue jobs.
 
 Foreign keys define deletion behavior: deleting a customer removes its notes and tasks; deleting an assignee clears the assignment; deleting a task creator is restricted while their tasks remain. Indexes support customer ownership/status, notes by customer and creation time, and task lookup by customer, assignee, completion, and due date.
 
@@ -190,11 +198,13 @@ Foreign keys define deletion behavior: deleting a customer removes its notes and
 3. [x] Add customers, validation, ownership policies, filtering, pagination, soft deletion, and CRUD feature tests.
 4. [x] Add customer notes with owner/admin access, author attribution, and nested-route authorization tests.
 5. [x] Add follow-up task workflows with assignment and authorization tests.
-6. Add queued reminders and notifications after task behavior is stable.
-7. Publish additional request/response examples from verified routes and keep this contract synchronized.
+6. [x] Add scheduled task reminders, queued database notifications, and database queue migrations.
+7. Add authenticated notification listing and read-state endpoints with authorization and tests.
+8. Publish additional request/response examples from verified routes and keep this contract synchronized.
 
 ## Remaining implementation decisions
 
 - Add a controlled admin-provisioning process before deploying the API; public registration intentionally creates members only.
 - Add a reproducible dependency lockfile and Docker development environment.
-- Define reminder timing, delivery channels, retry behavior, and queue monitoring before implementing notifications.
+- Add authenticated endpoints for listing notifications and marking them as read.
+- Add operational queue monitoring and a production deployment guide.

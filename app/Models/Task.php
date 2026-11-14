@@ -40,6 +40,7 @@ class Task extends Model
         return [
             'due_at' => 'immutable_datetime',
             'completed_at' => 'immutable_datetime',
+            'reminder_dispatched_at' => 'immutable_datetime',
         ];
     }
 }

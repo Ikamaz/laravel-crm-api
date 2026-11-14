@@ -22,6 +22,7 @@ class TaskFactory extends Factory
             'description' => fake()->optional()->paragraph(),
             'due_at' => fake()->optional()->dateTimeBetween('now', '+1 month'),
             'completed_at' => null,
+            'reminder_dispatched_at' => null,
         ];
     }
 }

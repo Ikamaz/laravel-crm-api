@@ -2,7 +2,7 @@
 
 A versioned REST API for a multi-user customer relationship management system, built with **Laravel 13** and **PHP 8.3+**.
 
-> **Project status:** Authentication, customer CRUD, customer notes, follow-up task workflows, authorization policies, feature tests, and GitHub Actions CI are implemented. Queued reminders, notifications, Docker, and a committed dependency lockfile remain planned.
+> **Project status:** Authentication, customer CRUD, customer notes, follow-up task workflows, authorization policies, queued task reminders, database notifications, feature tests, and GitHub Actions CI are implemented. Docker and a committed dependency lockfile remain planned.
 
 ## Current capabilities
 
@@ -17,6 +17,8 @@ A versioned REST API for a multi-user customer relationship management system, b
 - Customer CRUD with owner-scoped member access and admin-wide access
 - Customer notes with author attribution, owner/admin access rules, and append-only text
 - Follow-up tasks with optional assignees, due dates, completion tracking, and access policies
+- Scheduled reminders for incomplete tasks due within 24 hours, queued to the assignee or task creator through Laravel database notifications
+- Database-backed queue tables for pending and failed jobs
 - Task list visibility scoped to owned customers and tasks assigned to the authenticated member
 - Task filtering by open, completed, or overdue status
 - Customer search, status filtering, allow-listed sorting, and pagination
@@ -36,6 +38,8 @@ A versioned REST API for a multi-user customer relationship management system, b
 | Code style | Laravel Pint |
 | CI | GitHub Actions |
 | Authentication | Laravel Sanctum personal access tokens |
+| Queue | Laravel database queue with a worker and scheduled reminder command |
+| Notifications | Queued Laravel database notifications |
 
 ## Requirements
 
@@ -77,7 +81,14 @@ A versioned REST API for a multi-user customer relationship management system, b
    php artisan serve
    ```
 
-The API will be available at `http://127.0.0.1:8000/api/v1`.
+6. In separate terminals, run the queue worker and local scheduler:
+
+   ```bash
+   php artisan queue:work
+   php artisan schedule:work
+   ```
+
+The API will be available at `http://127.0.0.1:8000/api/v1`. In production, run Laravel's scheduler every minute with `php artisan schedule:run` from the system cron service.
 
 ## API
 
@@ -206,6 +217,18 @@ Accept: application/json
 
 Set `completed_at` to an ISO 8601 timestamp to complete a task, or set it to `null` to reopen it. Due dates and completion timestamps are returned in ISO 8601 format.
 
+## Task reminders and background processing
+
+Incomplete tasks with a due date between the current time and the next 24 hours are considered for a reminder. The scheduled command runs every minute and queues one database notification for the assignee; if the task is unassigned, the creator receives it instead. A `reminder_dispatched_at` timestamp prevents the same task from being queued repeatedly. Completed, overdue, and undated tasks are skipped.
+
+Run a queue worker to process notifications. The notification is stored in Laravel's `notifications` table; a dedicated API endpoint for reading and marking notifications is not implemented yet. Failed queue jobs are recorded in `failed_jobs` for inspection and retry.
+
+You can run the command manually with:
+
+```bash
+php artisan tasks:send-due-reminders
+```
+
 ## Project documentation
 
 - [API contract and access-control rules](docs/api-contract.md) — endpoint behavior, authorization rules, validation, and remaining planned workflows.
@@ -219,7 +242,7 @@ Set `completed_at` to an ISO 8601 timestamp to complete a task, or set it to `nu
 - [x] Customer CRUD, filtering, pagination, and ownership rules
 - [x] Customer notes
 - [x] Follow-up tasks, assignment, completion, filtering, and access policies
-- [ ] Queued reminders and notifications
+- [x] Queued task reminders, database notifications, and scheduled dispatch
 - [ ] Docker development environment
 - [ ] Commit Composer lockfile and expand API documentation with verified response examples
 
