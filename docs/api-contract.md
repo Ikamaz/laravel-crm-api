@@ -152,7 +152,7 @@ Reminders use Laravel's database notification channel and the database queue. Th
 | PATCH | `/notifications/{notification}/read` | Notification owner | Mark one notification as read |
 | PATCH | `/notifications/read-all` | Authenticated | Mark all of the current user's unread notifications as read |
 
-Notification collections are paginated newest first. The `per_page` query parameter accepts integers from 1 to 100 and defaults to 15. Each resource returns `id`, semantic `type`, the notification `data` payload, `read_at`, `created_at`, and `updated_at`. A notification ID is resolved through the authenticated user's notification relationship; another user's ID returns 404. Marking a notification that is already read is idempotent. The read-all endpoint returns `data.updated`, the number of unread records changed for the current user.
+Notification collections are paginated newest first. The `per_page` query parameter accepts integers from 1 to 100 and defaults to 15. Each resource returns `id`, semantic `type`, the notification `payload` object, `read_at`, `created_at`, and `updated_at`. A notification ID is resolved through the authenticated user's notification relationship; another user's ID returns 404. Marking a notification that is already read is idempotent. The read-all endpoint returns `data.updated`, the number of unread records changed for the current user.
 
 ## Response format
 
