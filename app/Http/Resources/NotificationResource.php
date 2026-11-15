@@ -12,7 +12,7 @@ class NotificationResource extends JsonResource
         return [
             'id' => $this->id,
             'type' => data_get($this->data, 'type', $this->type),
-            'data' => $this->data,
+            'payload' => $this->data,
             'read_at' => $this->read_at?->toISOString(),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
