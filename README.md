@@ -2,7 +2,7 @@
 
 A versioned REST API for a multi-user customer relationship management system, built with **Laravel 13** and **PHP 8.3+**.
 
-> **Project status:** Authentication, customer CRUD, customer notes, follow-up task workflows, authorization policies, queued task reminders, database notifications, feature tests, and GitHub Actions CI are implemented. Docker and a committed dependency lockfile remain planned.
+> **Project status:** Authentication, customer CRUD, customer notes, follow-up task workflows, authorization policies, queued task reminders, an authenticated notification inbox, feature tests, and GitHub Actions CI are implemented. Docker and a committed dependency lockfile remain planned.
 
 ## Current capabilities
 
@@ -18,6 +18,7 @@ A versioned REST API for a multi-user customer relationship management system, b
 - Customer notes with author attribution, owner/admin access rules, and append-only text
 - Follow-up tasks with optional assignees, due dates, completion tracking, and access policies
 - Scheduled reminders for incomplete tasks due within 24 hours, queued to the assignee or task creator through Laravel database notifications
+- Authenticated notification inbox with per-user pagination, individual read state, and mark-all-as-read support
 - Database-backed queue tables for pending and failed jobs
 - Task list visibility scoped to owned customers and tasks assigned to the authenticated member
 - Task filtering by open, completed, or overdue status
@@ -221,13 +222,25 @@ Set `completed_at` to an ISO 8601 timestamp to complete a task, or set it to `nu
 
 Incomplete tasks with a due date between the current time and the next 24 hours are considered for a reminder. The scheduled command runs every minute and queues one database notification for the assignee; if the task is unassigned, the creator receives it instead. A `reminder_dispatched_at` timestamp prevents the same task from being queued repeatedly. Completed, overdue, and undated tasks are skipped.
 
-Run a queue worker to process notifications. The notification is stored in Laravel's `notifications` table; a dedicated API endpoint for reading and marking notifications is not implemented yet. Failed queue jobs are recorded in `failed_jobs` for inspection and retry.
+Run a queue worker to process notifications. The notification is stored in Laravel's `notifications` table and can be retrieved through the authenticated notification API. Failed queue jobs are recorded in `failed_jobs` for inspection and retry.
 
 You can run the command manually with:
 
 ```bash
 php artisan tasks:send-due-reminders
 ```
+
+## Notifications
+
+All notification endpoints require a Sanctum Bearer token and are scoped to the authenticated user.
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| GET | `/api/v1/notifications` | List the current user's notifications, newest first |
+| PATCH | `/api/v1/notifications/{notification}/read` | Mark one of the current user's notifications as read |
+| PATCH | `/api/v1/notifications/read-all` | Mark all of the current user's unread notifications as read |
+
+The list endpoint accepts `per_page` from 1 to 100 (default 15) and returns standard Laravel pagination metadata. Attempts to mark another user's notification as read return 404. Marking an already-read notification is safe to repeat. The mark-all endpoint returns the number of unread notifications updated.
 
 ## Project documentation
 
@@ -243,6 +256,7 @@ php artisan tasks:send-due-reminders
 - [x] Customer notes
 - [x] Follow-up tasks, assignment, completion, filtering, and access policies
 - [x] Queued task reminders, database notifications, and scheduled dispatch
+- [x] Authenticated notification inbox, per-user read state, and pagination
 - [ ] Docker development environment
 - [ ] Commit Composer lockfile and expand API documentation with verified response examples
 
