@@ -1,6 +1,6 @@
 # API contract
 
-> Runtime baseline: Laravel 13 and PHP 8.3+. Health checks, Sanctum token authentication, customer management, customer notes, follow-up task workflows, and scheduled queued reminders are implemented and covered by feature tests.
+> Runtime baseline: Laravel 13 and PHP 8.3+. Health checks, Sanctum token authentication, customer management, customer notes, follow-up task workflows, scheduled queued reminders, and authenticated notification management are implemented and covered by feature tests.
 
 ## Conventions
 
@@ -39,6 +39,7 @@ The first version has two roles:
 | Delete tasks | Any task | Tasks created by the member or attached to their customers |
 | Manage notes | Any customer's records | Own customers' records |
 | Manage user roles | Yes | No |
+| Read notifications | Own notifications only | Own notifications only |
 
 Ownership and task access are enforced on the server through policies and query scoping, not by trusting IDs supplied by the client. Ownership-protected resources outside the caller's visible scope return 404.
 
@@ -141,7 +142,17 @@ Task resources include task fields, a customer summary, creator and assignee sum
 
 The scheduler runs `tasks:send-due-reminders` every minute. The command selects incomplete tasks with a due date from now through the next 24 hours and queues a `TaskDueReminder` notification for the assignee. If the task has no assignee, the creator is notified. Completed, overdue, and undated tasks are skipped. The internal `reminder_dispatched_at` timestamp prevents repeat dispatch for the same task.
 
-Reminders use Laravel's database notification channel and the database queue. The notification payload contains `type`, `task_id`, `customer_id`, `title`, and `due_at`. A queue worker must be running for queued notifications to be processed. Failed jobs are stored in `failed_jobs`. Reading notifications through the API and marking them as read are not implemented in this version.
+Reminders use Laravel's database notification channel and the database queue. The notification payload contains `type`, `task_id`, `customer_id`, `title`, and `due_at`. A queue worker must be running for queued notifications to be processed. Failed jobs are stored in `failed_jobs`. Users can list only their own notifications, mark an individual notification as read, or mark all of their unread notifications as read through the authenticated notification endpoints below.
+
+## Notifications (implemented)
+
+| Method | Endpoint | Access | Purpose |
+| --- | --- | --- | --- |
+| GET | `/notifications` | Authenticated | List the current user's notifications |
+| PATCH | `/notifications/{notification}/read` | Notification owner | Mark one notification as read |
+| PATCH | `/notifications/read-all` | Authenticated | Mark all of the current user's unread notifications as read |
+
+Notification collections are paginated newest first. The `per_page` query parameter accepts integers from 1 to 100 and defaults to 15. Each resource returns `id`, semantic `type`, the notification `data` payload, `read_at`, `created_at`, and `updated_at`. A notification ID is resolved through the authenticated user's notification relationship; another user's ID returns 404. Marking a notification that is already read is idempotent. The read-all endpoint returns `data.updated`, the number of unread records changed for the current user.
 
 ## Response format
 
@@ -199,12 +210,11 @@ Foreign keys define deletion behavior: deleting a customer removes its notes and
 4. [x] Add customer notes with owner/admin access, author attribution, and nested-route authorization tests.
 5. [x] Add follow-up task workflows with assignment and authorization tests.
 6. [x] Add scheduled task reminders, queued database notifications, and database queue migrations.
-7. Add authenticated notification listing and read-state endpoints with authorization and tests.
+7. [x] Add authenticated notification listing and read-state endpoints with authorization and tests.
 8. Publish additional request/response examples from verified routes and keep this contract synchronized.
 
 ## Remaining implementation decisions
 
 - Add a controlled admin-provisioning process before deploying the API; public registration intentionally creates members only.
 - Add a reproducible dependency lockfile and Docker development environment.
-- Add authenticated endpoints for listing notifications and marking them as read.
 - Add operational queue monitoring and a production deployment guide.
