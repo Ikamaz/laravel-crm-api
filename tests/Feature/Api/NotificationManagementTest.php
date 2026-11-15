@@ -33,7 +33,7 @@ class NotificationManagementTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $latestNotification)
             ->assertJsonPath('data.0.type', 'task_due_reminder')
-            ->assertJsonPath('data.0.data.title', 'Latest reminder')
+            ->assertJsonPath('data.0.payload.title', 'Latest reminder')
             ->assertJsonPath('meta.total', 2)
             ->assertJsonPath('meta.per_page', 1)
             ->assertDontSee('Private reminder');
@@ -54,7 +54,7 @@ class NotificationManagementTest extends TestCase
             ->assertJsonPath('data.id', $notificationId)
             ->assertJsonPath('data.type', 'task_due_reminder')
             ->assertJsonStructure([
-                'data' => ['id', 'type', 'data', 'read_at', 'created_at', 'updated_at'],
+                'data' => ['id', 'type', 'payload', 'read_at', 'created_at', 'updated_at'],
             ]);
 
         $this->assertNotNull($response->json('data.read_at'));
