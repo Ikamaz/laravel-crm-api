@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\\Feature\\Api;
+namespace Tests\Feature\Api;
 
-use App\\Models\\User;
-use Illuminate\\Foundation\\Testing\\RefreshDatabase;
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Support\\Str;
-use Laravel\\Sanctum\\Sanctum;
-use Tests\\TestCase;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Laravel\Sanctum\Sanctum;
+use Tests\TestCase;
 
 class NotificationManagementTest extends TestCase
 {
@@ -36,7 +36,7 @@ class NotificationManagementTest extends TestCase
             ->assertJsonPath('data.0.data.title', 'Latest reminder')
             ->assertJsonPath('meta.total', 2)
             ->assertJsonPath('meta.per_page', 1)
-            ->assertJsonMissing(['title' => 'Private reminder']);
+            ->assertDontSee('Private reminder');
     }
 
     public function test_user_can_mark_their_own_notification_as_read(): void
@@ -59,9 +59,6 @@ class NotificationManagementTest extends TestCase
 
         $this->assertNotNull($response->json('data.read_at'));
 
-        $this->assertDatabaseHas('notifications', [
-            'id' => $notificationId,
-        ]);
         $this->assertNotNull(
             DB::table('notifications')->where('id', $notificationId)->value('read_at'),
         );
@@ -138,7 +135,7 @@ class NotificationManagementTest extends TestCase
 
         DB::table('notifications')->insert([
             'id' => $id,
-            'type' => 'App\\Notifications\\TaskDueReminder',
+            'type' => 'App\Notifications\TaskDueReminder',
             'notifiable_type' => User::class,
             'notifiable_id' => $user->id,
             'data' => json_encode([
