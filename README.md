@@ -2,7 +2,7 @@
 
 A versioned REST API for a multi-user customer relationship management system, built with **Laravel 13** and **PHP 8.3+**.
 
-> **Project status:** Authentication, customer CRUD, customer notes, follow-up task workflows, authorization policies, queued task reminders, an authenticated notification inbox, feature tests, and GitHub Actions CI are implemented. Docker and a committed dependency lockfile remain planned.
+> **Project status:** Authentication, customer CRUD, customer notes, follow-up task workflows, authorization policies, queued task reminders, an authenticated notification inbox, CLI-only admin provisioning, feature tests, and GitHub Actions CI are implemented. Docker and a committed dependency lockfile remain planned.
 
 ## Current capabilities
 
@@ -14,6 +14,7 @@ A versioned REST API for a multi-user customer relationship management system, b
 - Sanctum personal access tokens for registration, login, logout, and the current-user endpoint
 - Rate-limited public authentication routes and protected token-authenticated routes
 - Server-controlled `member` role assigned during registration
+- CLI-only promotion of an existing account to admin, with interactive confirmation
 - Customer CRUD with owner-scoped member access and admin-wide access
 - Customer notes with author attribution, owner/admin access rules, and append-only text
 - Follow-up tasks with optional assignees, due dates, completion tracking, and access policies
@@ -146,6 +147,22 @@ Accept: application/json
 
 Passwords must be at least 12 characters and include a matching confirmation during registration. Store issued tokens securely; the plain-text token is returned only when it is created.
 
+## Admin account provisioning
+
+Public registration always creates a `member` account and ignores any client-supplied role. To grant administrator access, first register the account, then run this command in the application environment:
+
+```bash
+php artisan users:promote-admin admin@example.com
+```
+
+The command looks up an existing account and asks for confirmation before changing its role. It fails without changing data if the account does not exist, and it is safe to run again for an account that is already an administrator. For a controlled non-interactive deployment or maintenance script, pass `--force` to skip the confirmation prompt:
+
+```bash
+php artisan users:promote-admin admin@example.com --force
+```
+
+Use `--force` only in a trusted environment after verifying the target email address. The API does not expose an endpoint for changing user roles.
+
 ## Customers
 
 All customer endpoints require a Sanctum Bearer token.
@@ -257,6 +274,7 @@ The list endpoint accepts `per_page` from 1 to 100 (default 15) and returns stan
 - [x] Follow-up tasks, assignment, completion, filtering, and access policies
 - [x] Queued task reminders, database notifications, and scheduled dispatch
 - [x] Authenticated notification inbox, per-user read state, and pagination
+- [x] CLI-only admin provisioning for existing accounts
 - [ ] Docker development environment
 - [ ] Commit Composer lockfile and expand API documentation with verified response examples
 

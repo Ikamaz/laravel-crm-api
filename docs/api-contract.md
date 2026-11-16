@@ -38,7 +38,6 @@ The first version has two roles:
 | View/update tasks | Any task | Tasks for owned customers or assigned to the member |
 | Delete tasks | Any task | Tasks created by the member or attached to their customers |
 | Manage notes | Any customer's records | Own customers' records |
-| Manage user roles | Yes | No |
 | Read notifications | Own notifications only | Own notifications only |
 
 Ownership and task access are enforced on the server through policies and query scoping, not by trusting IDs supplied by the client. Ownership-protected resources outside the caller's visible scope return 404.
@@ -52,9 +51,19 @@ Ownership and task access are enforced on the server through policies and query 
 | POST | `/auth/logout` | Authenticated | Revoke the current token |
 | GET | `/auth/me` | Authenticated | Return the current user |
 
-Registration accepts a name, email, password, and password confirmation. Passwords must be 12–72 characters. It always creates a member; clients cannot submit a role. The initial admin account will be provisioned through a controlled seed or administrative process, not public registration.
+Registration accepts a name, email, password, and password confirmation. Passwords must be 12–72 characters. It always creates a member; clients cannot submit a role. Administrator access is granted separately through the CLI-only provisioning command described below.
 
 Login accepts email and password. Successful registration and login return a Sanctum Bearer token and a user data object. Invalid credentials return a validation error. Public registration and login are limited to five requests per minute per IP. Logout revokes only the current token; `GET /auth/me` returns the authenticated user.
+
+## Administrative provisioning (implemented)
+
+The API intentionally has no role-management endpoint. To grant administrator access, an operator must first ensure that the target account exists, then run the command inside a trusted application environment:
+
+```bash
+php artisan users:promote-admin admin@example.com
+```
+
+The command normalizes the supplied email address, fails if no matching user exists, and asks for confirmation before promoting a member. It is idempotent for an account that is already an administrator. The `--force` option skips the interactive confirmation for controlled non-interactive operations; it does not create users or bypass the existing-account lookup. Public registration continues to assign the `member` role regardless of client-supplied fields.
 
 ## Customers (implemented)
 
@@ -215,6 +224,5 @@ Foreign keys define deletion behavior: deleting a customer removes its notes and
 
 ## Remaining implementation decisions
 
-- Add a controlled admin-provisioning process before deploying the API; public registration intentionally creates members only.
 - Add a reproducible dependency lockfile and Docker development environment.
 - Add operational queue monitoring and a production deployment guide.
