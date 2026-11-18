@@ -20,7 +20,8 @@ class CustomerNoteController extends Controller
 
         $notes = $customer->notes()
             ->with('author')
-            ->latest()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->paginate(15);
 
         return CustomerNoteResource::collection($notes);

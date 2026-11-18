@@ -20,6 +20,8 @@ class TaskController extends Controller
     {
         $filters = $request->validated();
         $user = $request->user();
+        $sort = $filters['sort'] ?? 'created_at';
+        $direction = $filters['direction'] ?? 'desc';
 
         $tasks = Task::query()
             ->with([
@@ -44,7 +46,8 @@ class TaskController extends Controller
                     default => $query->whereNull('completed_at'),
                 };
             })
-            ->orderBy($filters['sort'] ?? 'created_at', $filters['direction'] ?? 'desc')
+            ->orderBy($sort, $direction)
+            ->orderBy('id', $direction)
             ->paginate($filters['per_page'] ?? 15)
             ->withQueryString();
 
