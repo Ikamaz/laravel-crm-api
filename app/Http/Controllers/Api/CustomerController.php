@@ -17,6 +17,8 @@ class CustomerController extends Controller
     {
         $filters = $request->validated();
         $user = $request->user();
+        $sort = $filters['sort'] ?? 'created_at';
+        $direction = $filters['direction'] ?? 'desc';
 
         $customers = Customer::query()
             ->when(! $user->isAdmin(), fn ($query) => $query->where('owner_id', $user->id))
@@ -36,7 +38,8 @@ class CustomerController extends Controller
                 $filters['status'] ?? null,
                 fn ($query, string $status) => $query->where('status', $status),
             )
-            ->orderBy($filters['sort'] ?? 'created_at', $filters['direction'] ?? 'desc')
+            ->orderBy($sort, $direction)
+            ->orderBy('id', $direction)
             ->paginate($filters['per_page'] ?? 15)
             ->withQueryString();
 

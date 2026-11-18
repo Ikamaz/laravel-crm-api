@@ -11,6 +11,7 @@
 - Resource identifiers: numeric IDs initially; do not expose internal database fields that are not part of a resource.
 - Collections: paginated with Laravel's length-aware pagination metadata.
 - Filtering and sorting use explicit allow-lists.
+- Paginated collections use the resource ID as a secondary sort key in the requested direction, so records with equal primary sort values have a stable order across pages.
 
 Authenticated endpoints require a valid token unless marked public. Authentication endpoints are rate-limited. A user's role must never be accepted from public registration or ordinary profile updates.
 
@@ -109,7 +110,7 @@ Notes are append-oriented records attached to a customer. The API supports creat
 | POST | `/customers/{customer}/notes` | Customer owner or admin | Add a note |
 | DELETE | `/customers/{customer}/notes/{note}` | Note author, customer owner, or admin | Delete a note |
 
-A note contains `id`, `customer_id`, `body`, an `author` object with `id` and `name`, `created_at`, and `updated_at`. The author is taken from the authenticated user; client-supplied `user_id` is ignored. The body is required and limited to 5,000 characters. Notes are returned newest first in pages of 15.
+A note contains `id`, `customer_id`, `body`, an `author` object with `id` and `name`, `created_at`, and `updated_at`. The author is taken from the authenticated user; client-supplied `user_id` is ignored. The body is required and limited to 5,000 characters. Notes are returned newest first in pages of 15; equal creation timestamps are ordered by descending note ID.
 
 ## Follow-up tasks (implemented)
 
@@ -145,7 +146,7 @@ Task list visibility is scoped to tasks attached to customers owned by the membe
 - `sort`: `created_at`, `updated_at`, or `due_at`.
 - `direction`: `asc` or `desc`.
 
-Task resources include task fields, a customer summary, creator and assignee summaries, and ISO 8601 timestamps. The list is paginated.
+Task resources include task fields, a customer summary, creator and assignee summaries, and ISO 8601 timestamps. The list is paginated; equal values in the selected sort field are ordered by task ID in the requested direction.
 
 ### Task reminders (implemented)
 
