@@ -10,7 +10,7 @@ A versioned REST API for a multi-user customer relationship management system, b
 - Versioned API routing under `/api/v1`
 - JSON health endpoint: `GET /api/v1/health`
 - MySQL configuration for local development
-- SQLite in-memory configuration for automated tests
+- SQLite in-memory configuration for fast automated tests, plus a dedicated MySQL 8 integration job in GitHub Actions
 - Sanctum personal access tokens for registration, login, logout, and the current-user endpoint
 - Rate-limited public authentication routes and protected token-authenticated routes
 - Server-controlled `member` role assigned during registration
@@ -26,7 +26,7 @@ A versioned REST API for a multi-user customer relationship management system, b
 - Customer search, status filtering, allow-listed sorting, and pagination
 - Validated request payloads and consistent JSON API resources
 - PHPUnit feature tests for authentication, customer, note, and task workflows
-- GitHub Actions workflow for PHP 8.3, 8.4, and 8.5
+- GitHub Actions matrix for PHP 8.3, 8.4, and 8.5 on SQLite, plus MySQL 8 integration coverage on PHP 8.4
 - API contract documenting implemented endpoints, access rules, and planned background workflows
 
 ## Tech stack
@@ -34,7 +34,7 @@ A versioned REST API for a multi-user customer relationship management system, b
 | Area | Technology |
 | --- | --- |
 | Backend | PHP 8.3+, Laravel 13 |
-| Database | MySQL 8+ (development), SQLite (tests) |
+| Database | MySQL 8+ (development and integration CI), SQLite (fast test matrix) |
 | API | REST, JSON, versioned routes |
 | Testing | PHPUnit 12 |
 | Code style | Laravel Pint |
@@ -48,7 +48,7 @@ A versioned REST API for a multi-user customer relationship management system, b
 - PHP 8.3 or newer with the extensions required by Laravel
 - Composer 2
 - MySQL 8+ for local development
-- SQLite PDO extension for the automated test suite
+- `pdo_mysql` for MySQL integration checks and SQLite PDO extensions for the fast test matrix
 
 ## Local setup
 
