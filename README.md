@@ -2,7 +2,7 @@
 
 A versioned REST API for a multi-user customer relationship management system, built with **Laravel 13** and **PHP 8.3+**.
 
-> **Project status:** Authentication, customer CRUD, customer notes, follow-up task workflows, authorization policies, queued task reminders, an authenticated notification inbox, CLI-only admin provisioning, feature tests, and GitHub Actions CI are implemented. Docker and a committed dependency lockfile remain planned.
+> **Project status:** Authentication, customer CRUD, customer notes, follow-up task workflows, authorization policies, queued task reminders, an authenticated notification inbox, CLI-only admin provisioning, feature tests, and GitHub Actions CI are implemented. A Docker Compose development environment is implemented; a committed Composer lockfile remains planned.
 
 ## Current capabilities
 
@@ -10,6 +10,7 @@ A versioned REST API for a multi-user customer relationship management system, b
 - Versioned API routing under `/api/v1`
 - JSON health endpoint: `GET /api/v1/health`
 - MySQL configuration for local development
+- Docker Compose services for MySQL, the Laravel API, a database queue worker, and the scheduler
 - SQLite in-memory configuration for fast automated tests, plus a dedicated MySQL 8 integration job in GitHub Actions
 - Sanctum personal access tokens for registration, login, logout, and the current-user endpoint
 - Rate-limited public authentication routes and protected token-authenticated routes
@@ -42,12 +43,14 @@ A versioned REST API for a multi-user customer relationship management system, b
 | Authentication | Laravel Sanctum personal access tokens |
 | Queue | Laravel database queue with a worker and scheduled reminder command |
 | Notifications | Queued Laravel database notifications |
+| Local development | Docker Compose with PHP 8.4 CLI and MySQL 8 |
 
 ## Requirements
 
 - PHP 8.3 or newer with the extensions required by Laravel
 - Composer 2
-- MySQL 8+ for local development
+- MySQL 8+ for native local development
+- Docker Engine and Docker Compose v2 (optional alternative to installing PHP, Composer, and MySQL locally)
 - `pdo_mysql` for MySQL integration checks and SQLite PDO extensions for the fast test matrix
 
 ## Local setup
@@ -91,6 +94,53 @@ A versioned REST API for a multi-user customer relationship management system, b
    ```
 
 The API will be available at `http://127.0.0.1:8000/api/v1`. In production, run Laravel's scheduler every minute with `php artisan schedule:run` from the system cron service.
+
+## Docker Compose development
+
+Docker Compose provides a local development stack with PHP 8.4, MySQL 8, the API server, a database queue worker, and Laravel's scheduler.
+
+1. Copy the example environment file:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Start the stack. On Linux and macOS, pass your host user and group IDs so generated files remain editable:
+
+   ```bash
+   DOCKER_UID="$(id -u)" DOCKER_GID="$(id -g)" docker compose up --build
+   ```
+
+   On Docker Desktop for Windows, the defaults are usually sufficient:
+
+   ```bash
+   docker compose up --build
+   ```
+
+The one-shot `setup` service installs Composer dependencies, generates an application key if `APP_KEY` is empty, and runs migrations. The API is available at `http://localhost:8000/api/v1`; the MySQL port is exposed on `127.0.0.1:3307` by default. The queue worker and scheduler run as separate services.
+
+Because this repository does not yet include a committed `composer.lock`, the first `composer install` resolves compatible dependency versions and creates the lockfile in the project directory. Review and commit that generated file so subsequent installations are reproducible.
+
+Run the test suite and formatter inside the application container:
+
+```bash
+docker compose exec app php artisan test
+docker compose exec app vendor/bin/pint --test
+```
+
+After pulling changes that include new migrations, rerun the setup service:
+
+```bash
+docker compose run --rm setup
+```
+
+Stop the services without deleting the database volume:
+
+```bash
+docker compose down
+```
+
+The default database credentials are intended only for local development. Override them with `DOCKER_DB_USERNAME`, `DOCKER_DB_PASSWORD`, and `DOCKER_MYSQL_ROOT_PASSWORD` when needed. Do not use these defaults in production.
 
 ## API
 
@@ -275,7 +325,7 @@ The list endpoint accepts `per_page` from 1 to 100 (default 15) and returns stan
 - [x] Queued task reminders, database notifications, and scheduled dispatch
 - [x] Authenticated notification inbox, per-user read state, and pagination
 - [x] CLI-only admin provisioning for existing accounts
-- [ ] Docker development environment
+- [x] Docker Compose development environment with MySQL, API, queue worker, and scheduler
 - [ ] Commit Composer lockfile and expand API documentation with verified response examples
 
 ## Engineering principles
