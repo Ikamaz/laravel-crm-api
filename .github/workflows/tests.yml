@@ -47,6 +47,22 @@ jobs:
       - name: Check code style
         run: vendor/bin/pint --test
 
+  docker-compose:
+    name: Docker Compose configuration and image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Validate Compose configuration
+        run: docker compose config --quiet
+
+      - name: Build application image
+        run: docker compose build --pull app
+
   mysql-integration:
     name: MySQL 8 integration (PHP 8.4)
     runs-on: ubuntu-latest
