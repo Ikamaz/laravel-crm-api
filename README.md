@@ -117,7 +117,7 @@ Docker Compose provides a local development stack with PHP 8.4, MySQL 8, the API
    docker compose up --build
    ```
 
-The one-shot `setup` service installs Composer dependencies, generates an application key if `APP_KEY` is empty, and runs migrations. The API is available at `http://localhost:8000/api/v1`; the MySQL port is exposed on `127.0.0.1:3307` by default. The queue worker and scheduler run as separate services.
+The one-shot `setup` service installs Composer dependencies, generates an application key if `APP_KEY` is empty, and runs migrations. The API is available at `http://localhost:8000/api/v1`; the MySQL port is exposed on `127.0.0.1:3307` by default. The queue worker and scheduler run as separate services. The GitHub Actions pipeline also boots the complete stack as a runtime smoke test, waits for `GET /api/v1/health` to return `data.status = ok`, and verifies that MySQL, the API, queue worker, and scheduler remain running before tearing the stack down. This checks local container wiring; it is not a production deployment test.
 
 Because this repository does not yet include a committed `composer.lock`, the first `composer install` resolves compatible dependency versions and creates the lockfile in the project directory. Review and commit that generated file so subsequent installations are reproducible.
 
